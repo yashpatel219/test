@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { io as ioClient } from "socket.io-client";
-import { useNavigate } from "react-router-dom";
-
 
 const FullCircleProgressBar = ({ percentage }) => {
   const radius = 80;
@@ -59,8 +57,6 @@ const ImpactCalculator = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [copied, setCopied] = useState(false);
   const target = 36000;
-  const navigate = useNavigate();
-
 
   const animationIntervalId = useRef(null);
 
@@ -83,59 +79,56 @@ const ImpactCalculator = () => {
   };
 
   const fetchAndAnimate = async () => {
-    try {
-      let username = null;
+  try {
+    let username = null;
 
-      // 1️⃣ Try to get from localStorage first
-      const storedUser = localStorage.getItem("googleUser");
-      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-      username = parsedUser?.username || localStorage.getItem("username");
+    console.log("🔹 Fetching user from localStorage...");
+    const storedUser = localStorage.getItem("googleUser");
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+    username = parsedUser?.username || localStorage.getItem("username");
 
-      // 2️⃣ If no username, fetch from backend using email
-      if (!username) {
-        const email = parsedUser?.email || localStorage.getItem("email");
-        if (email) {
-          const userRes = await axios.get(`https://donate.unessafoundation.org/api/users/${email}`);
-          username = userRes.data.username;
-          console.log("Fetched username from backend:", username);
+    console.log("🔹 Username from localStorage:", username);
 
-          // Optional: save it to localStorage for next time
-          localStorage.setItem("username", username);
-        }
+    if (!username) {
+      const email = parsedUser?.email || localStorage.getItem("email");
+      console.log("🔹 Email to fetch username from backend:", email);
+      if (email) {
+        const userRes = await axios.get(`https://donate.unessafoundation.org/api/users/${email}`);
+        username = userRes.data.username;
+        console.log("✅ Fetched username from backend:", username);
+        localStorage.setItem("username", username);
       }
-
-      // 3️⃣ If still no username, stop
-      if (!username) {
-        console.log("❌ No username found in localStorage or backend");
-        setTotalAmount(0);
-        setProgress(0);
-        return;
-      }
-
-      // 4️⃣ Fetch donations from backend using username
-      const res = await axios.get("https://donate.unessafoundation.org/api/donations", {
-        params: { username }
-      });
-
-      const total = Array.isArray(res.data)
-        ? res.data.reduce((sum, payment) => sum + payment.amount, 0)
-        : 0;
-
-      console.log(`💰 Total donations for ${username}: ₹${total}`);
-
-      setTotalAmount(total);
-      localStorage.setItem("donationAmount", JSON.stringify({ amount: total }));
-
-      if (!target) return;
-
-      const calculated = Math.min(Math.round((total / target) * 100), 100);
-      animateProgress(calculated);
-    } catch (err) {
-      console.error("Error fetching donations:", err);
     }
-  };
 
-  useEffect(() => {
+    if (!username) {
+      console.log("❌ No username found");
+      setTotalAmount(0);
+      setProgress(0);
+      return;
+    }
+
+    console.log("🔹 Fetching donations for username:", username);
+    const res = await axios.get("https://donate.unessafoundation.org/api/donations", {
+      params: { username }
+    });
+
+    const total = Array.isArray(res.data)
+      ? res.data.reduce((sum, payment) => sum + payment.amount, 0)
+      : 0;
+
+    console.log(`💰 Total donations for ${username}: ₹${total}`);
+    setTotalAmount(total);
+    localStorage.setItem("donationAmount", JSON.stringify({ amount: total }));
+
+    const calculated = Math.min(Math.round((total / target) * 100), 100);
+    console.log("🔹 Calculated progress %:", calculated);
+    animateProgress(calculated);
+  } catch (err) {
+    console.error("❌ Error fetching donations:", err);
+  }
+};
+
+   useEffect(() => {
     fetchAndAnimate(); // Initial load
 
     // 🔌 Connect to backend Socket.IO server
@@ -149,7 +142,7 @@ const ImpactCalculator = () => {
       fetchAndAnimate();
     });
 
-    return () => {
+      return () => {
       if (animationIntervalId.current) {
         clearInterval(animationIntervalId.current);
       }
@@ -157,24 +150,33 @@ const ImpactCalculator = () => {
     };
   }, []);
 
-
-  const handleCopyLink = () => {
-    const refName = localStorage.getItem("username") || "";
-    const finalURL = `/form?ref=${encodeURIComponent(refName)}`;
-
-    // Copy to clipboard
-    navigator.clipboard.writeText(finalURL);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-
-    // Navigate to form page with reference
-    navigate(finalURL); // ✅ SPA navigation
-  };
-
-const handleShare = () => {
-  const baseURL = `${window.location.origin}/form`; // 👈 dynamic
+const handleCopyLink = () => {
+  const baseURL = `${window.location.origin}/form`;
   const refName = localStorage.getItem("username") || "";
   const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
+
+  console.log("🖱 Copy link clicked");
+  console.log("🔹 Base URL:", baseURL);
+  console.log("🔹 Ref name:", refName);
+  console.log("🔹 Final URL:", finalURL);
+
+  navigator.clipboard.writeText(finalURL);
+  setCopied(true);
+  setTimeout(() => setCopied(false), 2000);
+
+  console.log("✅ URL copied to clipboard, redirecting...");
+  window.location.href = finalURL;
+};
+
+const handleShare = () => {
+  const baseURL = `${window.location.origin}/form`;
+  const refName = localStorage.getItem("username") || "";
+  const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
+
+  console.log("🖱 Share button clicked");
+  console.log("🔹 Base URL:", baseURL);
+  console.log("🔹 Ref name:", refName);
+  console.log("🔹 Final URL:", finalURL);
 
   const message = `*Hello!* 👋 I’m volunteering with *Unessa Foundation*, an NGO based in Vadodara, dedicated to transforming the lives of underprivileged children through education 📚, mentorship 🤝, and life skills 💡.🎓 
 
@@ -185,8 +187,9 @@ const handleShare = () => {
 ✅ Ensure zero child exits into poverty mindset from shelter homes
 
 🔗 *Donate now:* ${finalURL}`;
-
   const whatsappURL = `https://api.whatsapp.com/send/?text=${encodeURIComponent(message)}`;
+
+  console.log("🔹 WhatsApp URL:", whatsappURL);
   window.open(whatsappURL, "_blank");
 };
 
