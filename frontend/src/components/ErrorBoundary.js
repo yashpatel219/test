@@ -1,11 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import { BrowserRouter } from "react-router-dom";
+// src/App.js or index.js
+import ErrorBoundary from './components/ErrorBoundary';
 
+// ... other imports ...
 
-// index.js
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
