@@ -1,5 +1,5 @@
 // src/App.js or index.js
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './ErrorBoundary';
 
 // ... other imports ...
 
