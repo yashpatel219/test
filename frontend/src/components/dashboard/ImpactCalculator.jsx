@@ -154,7 +154,7 @@ const ImpactCalculator = () => {
   }, []);
 
   const handleCopyLink = () => {
-  const baseURL = "http://localhost:5173/form";
+  const baseURL = "https://test-project-ten-fawn.vercel.app/form";
   const refName = localStorage.getItem("username") || "";
   const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
 
@@ -170,7 +170,7 @@ const ImpactCalculator = () => {
 };
 
 const handleShare = () => {
-  const baseURL = "http://localhost:5173/form";
+  const baseURL = "https://test-project-ten-fawn.vercel.app/form";
   const refName = localStorage.getItem("username") || "";
   const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
   const message = `*Hello!* 👋 I’m volunteering with *Unessa Foundation*, an NGO based in Vadodara, dedicated to transforming the lives of underprivileged children through education 📚, mentorship 🤝, and life skills 💡.🎓 *Project Sneh* is our flagship initiative that supports children from orphanages, low-income families 💛, and rural villages — giving them not just schooling, but the tools and confidence to thrive in life.

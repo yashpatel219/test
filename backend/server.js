@@ -35,6 +35,7 @@ const razorpay = new Razorpay({
 // CORS configuration - Update with your frontend URL
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://test-project-ten-fawn.vercel.app",
   "http://localhost:3000",
   "http://localhost:4173",
 ];
