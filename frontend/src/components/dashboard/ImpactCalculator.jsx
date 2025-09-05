@@ -165,7 +165,7 @@ const handleCopyLink = () => {
   setTimeout(() => setCopied(false), 2000);
 
   console.log("✅ URL copied to clipboard, redirecting...");
-  window.location.href = finalURL;
+  
 };
 
 const handleShare = () => {
