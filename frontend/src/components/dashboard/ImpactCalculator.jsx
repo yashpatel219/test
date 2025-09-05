@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { io as ioClient } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
+
 
 const FullCircleProgressBar = ({ percentage }) => {
   const radius = 80;
@@ -57,6 +59,8 @@ const ImpactCalculator = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [copied, setCopied] = useState(false);
   const target = 36000;
+  const navigate = useNavigate();
+
 
   const animationIntervalId = useRef(null);
 
@@ -153,18 +157,19 @@ const ImpactCalculator = () => {
     };
   }, []);
 
-const handleCopyLink = () => {
-  const baseURL = `${window.location.origin}/form`; // 👈 dynamic
-  const refName = localStorage.getItem("username") || "";
-  const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
 
-  navigator.clipboard.writeText(finalURL);
-  setCopied(true);
-  setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = () => {
+    const refName = localStorage.getItem("username") || "";
+    const finalURL = `/form?ref=${encodeURIComponent(refName)}`;
 
-  // Redirect to the copied URL
-  window.location.href = finalURL;
-};
+    // Copy to clipboard
+    navigator.clipboard.writeText(finalURL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+
+    // Navigate to form page with reference
+    navigate(finalURL); // ✅ SPA navigation
+  };
 
 const handleShare = () => {
   const baseURL = `${window.location.origin}/form`; // 👈 dynamic
