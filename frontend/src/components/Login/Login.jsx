@@ -312,86 +312,87 @@ const Login = () => {
     }
   }, [parseJwt, setSession, navigate, redirectUserBasedOnRole]);
 
-useEffect(() => {
-  // Don't initialize if already logged in or already initialized
-  if (isLoggedIn || googleInitialized.current) return;
-
-  const initializeGoogleSignIn = () => {
-    if (window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: "576101733937-te217ttgfveqn2jk9misk91d2po77p64.apps.googleusercontent.com",
-          callback: handleCredentialResponse,
-          scope: "email profile",
-          context: "signin",
-        });
-
-        const googleDiv = document.getElementById("googleSignInDiv");
-        if (googleDiv) {
-          window.google.accounts.id.renderButton(googleDiv, { 
-            theme: "outline", 
-            size: "large", 
-            width: 300,
-            click_listener: () => {
-              console.log('Google button clicked');
-              setLoading(true);
-              setLoadingMessage("Connecting to Google...");
-            }
-          });
-        }
-        
-        googleInitialized.current = true;
-        console.log('Google Sign-In initialized');
-      } catch (error) {
-        console.error('Error initializing Google Sign-In:', error);
-        googleInitialized.current = false;
-      }
+  useEffect(() => {
+    // Reset Google initialization when logging out
+    if (!isLoggedIn) {
+      googleInitialized.current = false;
+      
+      // Clear any existing Google button
+      const googleDiv = document.getElementById("googleSignInDiv");
+      if (googleDiv) googleDiv.innerHTML = '';
     }
-  };
 
-  // Check if Google API is already loaded
-  if (window.google?.accounts?.id) {
-    initializeGoogleSignIn();
-  } else {
-    // Load the script only if not already present
-    if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+    // Don't initialize Google if user is already logged in
+    if (isLoggedIn) return;
+
+    // Load Google API script
+    const loadGoogleScript = () => {
+      if (window.google && window.google.accounts) {
+        initializeGoogle();
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        // Give it a small delay to ensure complete initialization
-        setTimeout(initializeGoogleSignIn, 100);
+        console.log('Google API loaded');
+        initializeGoogle();
       };
       script.onerror = () => {
         console.error('Failed to load Google API');
-        setLoading(false);
       };
       document.head.appendChild(script);
-    } else {
-      // Script already exists, wait for it to load
-      const checkInterval = setInterval(() => {
-        if (window.google?.accounts?.id) {
-          clearInterval(checkInterval);
-          initializeGoogleSignIn();
-        }
-      }, 100);
-      
-      // Timeout after 5 seconds
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        if (!googleInitialized.current) {
-          console.error('Google API failed to load within timeout');
-        }
-      }, 5000);
-    }
-  }
+    };
 
-  return () => {
-    // Cleanup on unmount
-    googleInitialized.current = false;
-  };
-}, [isLoggedIn, handleCredentialResponse, forceRender]);
+    const initializeGoogle = () => {
+      if (googleInitialized.current) return;
+      
+      if (window.google?.accounts?.id) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: "576101733937-te217ttgfveqn2jk9misk91d2po77p64.apps.googleusercontent.com",
+            callback: handleCredentialResponse,
+            scope: "email profile",
+            context: "signin",
+          });
+
+          window.google.accounts.id.renderButton(
+            document.getElementById("googleSignInDiv"),
+            { 
+              theme: "outline", 
+              size: "large", 
+              width: 300,
+              click_listener: () => {
+                console.log('Google button clicked');
+                setLoading(true);
+                setLoadingMessage("Connecting to Google...");
+              }
+            }
+          );
+          
+          googleInitialized.current = true;
+          console.log('Google Sign-In initialized');
+        } catch (error) {
+          console.error('Error initializing Google Sign-In:', error);
+        }
+      } else {
+        console.log("Google API not available yet");
+        setTimeout(initializeGoogle, 500);
+      }
+    };
+
+    loadGoogleScript();
+
+    return () => {
+      // Cleanup - but don't clear the button if we're just logging out
+      if (isLoggedIn) {
+        const googleDiv = document.getElementById("googleSignInDiv");
+        if (googleDiv) googleDiv.innerHTML = '';
+      }
+    };
+  }, [isLoggedIn, handleCredentialResponse, forceRender]); // Added forceRender dependency
 
   // If user is already logged in, show a message
   if (isLoggedIn) {
