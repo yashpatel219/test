@@ -153,15 +153,12 @@ const ImpactCalculator = () => {
     };
   }, []);
 
-  const handleCopyLink = () => {
-  const baseURL = "https://test-project-ten-fawn.vercel.app/form";
+const handleCopyLink = () => {
+  const baseURL = `${window.location.origin}/form`; // 👈 dynamic
   const refName = localStorage.getItem("username") || "";
   const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
 
-  // Copy link
   navigator.clipboard.writeText(finalURL);
-
-  // Show "copied" message
   setCopied(true);
   setTimeout(() => setCopied(false), 2000);
 
@@ -170,24 +167,24 @@ const ImpactCalculator = () => {
 };
 
 const handleShare = () => {
-  const baseURL = "https://test-project-ten-fawn.vercel.app/form";
+  const baseURL = `${window.location.origin}/form`; // 👈 dynamic
   const refName = localStorage.getItem("username") || "";
   const finalURL = `${baseURL}?ref=${encodeURIComponent(refName)}`;
-  const message = `*Hello!* 👋 I’m volunteering with *Unessa Foundation*, an NGO based in Vadodara, dedicated to transforming the lives of underprivileged children through education 📚, mentorship 🤝, and life skills 💡.🎓 *Project Sneh* is our flagship initiative that supports children from orphanages, low-income families 💛, and rural villages — giving them not just schooling, but the tools and confidence to thrive in life.
-*But here’s the truth:*
-In India 🇮🇳, children in orphanages may receive food and shelter, but they’re often left behind when it comes to opportunity 🚪. Many age out of the system at 18 and end up in low-paying jobs 💼 — not because they lack potential, but because they lack access.
-We believe *survival isn’t enough*.
-Every child deserves a future of dignity, choice 🎯, and purpose 💖.
-That’s why we focus on nurturing their minds 🧠, building resilience, and preparing them for real-world success 🌟.
+
+  const message = `*Hello!* 👋 I’m volunteering with *Unessa Foundation*, an NGO based in Vadodara, dedicated to transforming the lives of underprivileged children through education 📚, mentorship 🤝, and life skills 💡.🎓 
+
+*Project Sneh* is our flagship initiative that supports children from orphanages, low-income families 💛, and rural villages — giving them not just schooling, but the tools and confidence to thrive in life.
+
 🌍 *Our 5-Year Vision by 2030:*
 ✅ Empower 10,000+ children across India
 ✅ Ensure zero child exits into poverty mindset from shelter homes
-🚸 We’re already working with 100+ children in shelter homes — and *your support* can help us reach many more.
-🔗 *Donate now:* ${finalURL}
-Let’s build a future where no child is left behind 💫🙏 Thank you for believing in this mission ❤️`;
+
+🔗 *Donate now:* ${finalURL}`;
+
   const whatsappURL = `https://api.whatsapp.com/send/?text=${encodeURIComponent(message)}`;
   window.open(whatsappURL, "_blank");
 };
+
 
   return (
     <div className="flex flex-col md:flex-row bg-[#096d7d33] shadow-lg overflow-hidden text-white p-9 md:p-10">
